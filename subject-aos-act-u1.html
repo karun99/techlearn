@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adv. Operating Systems · Unit 1 Activity | M.Tech CSE</title>
+<meta name="description" content="Activity quiz for Advanced Operating Systems Unit 1">
+<link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+
+<nav class="main-nav">
+  <div class="nav-brand">
+    <a href="index.html"><span class="brand-icon"><i class="fas fa-graduation-cap"></i></span>
+      <span>M.Tech CSE<small>JNTUK</small></span></a>
+  </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+    <a href="semester1.html" class="nav-link"><i class="fas fa-1"></i> Sem 1</a>
+    <a href="semester2.html" class="nav-link"><i class="fas fa-2"></i> Sem 2</a>
+    <a href="semester3.html" class="nav-link"><i class="fas fa-3"></i> Sem 3</a>
+    <a href="semester4.html" class="nav-link"><i class="fas fa-4"></i> Sem 4</a>
+    <a href="glossary.html" class="nav-link"><i class="fas fa-book"></i> Glossary</a>
+  </div>
+  <div class="nav-progress"><i class="fas fa-chart-line"></i><span id="overallProgress">0%</span></div>
+</nav>
+<div class="breadcrumb"><a href="index.html">Home</a><span class="sep">/</span><a href="semester1.html">Sem 1</a><span class="sep">/</span><a href="subject-aos.html">Adv. Operating Systems</a><span class="sep">/</span><a href="subject-aos.html">Unit 1</a><span class="sep">/</span><span>Activity</span></div>
+<main class="activity-container">
+  <div class="activity-header">
+    <h1><i class="fas fa-tasks"></i> Unit 1 Activity</h1>
+    <p>Advanced Operating Systems · Architectures and Mutual Exclusion</p>
+    <p class="small muted">Answer the 12 questions. Score at least 40% to pass and unlock the next unit.</p>
+  </div>
+  <div class="progress-wrapper">
+    <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+    <div class="progress-text"><span id="answeredCount">0 / 12 answered</span><span id="scoreDisplay">Score: 0</span></div>
+  </div>
+  <div class="quiz-container" id="quizContainer"></div>
+  <div class="quiz-nav" id="quizNav">
+    <button class="btn btn-secondary" id="prevBtn"><i class="fas fa-arrow-left"></i> Prev</button>
+    <button class="btn btn-primary" id="nextBtn" disabled><i class="fas fa-arrow-right"></i> Next</button>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <p><i class="fas fa-graduation-cap"></i> &copy; 2026 M.Tech CSE Learning Hub — JNTU Kakinada. <a href="task.md">About this app</a></p>
+</footer>
+<script src="script.js"></script>
+<script>
+  (function () {
+    var questions = [{"q":"Which of the following areas is covered under 'Architectures of distributed systems'?","correct":0,"options":["Architectures of distributed systems","communication networks","Lamport's logical clocks","causal ordering of messages"],"explanation":"'Architectures of distributed systems' is one of the five focus areas of this unit.","type":"mcq"},{"q":"Which of the following areas is covered under 'communication networks'?","correct":1,"options":["Architectures of distributed systems","communication networks","Lamport's logical clocks","causal ordering of messages"],"explanation":"'communication networks' is one of the five focus areas of this unit.","type":"mcq"},{"q":"Which of the following areas is covered under 'Lamport's logical clocks'?","correct":2,"options":["Architectures of distributed systems","communication networks","Lamport's logical clocks","causal ordering of messages"],"explanation":"'Lamport's logical clocks' is one of the five focus areas of this unit.","type":"mcq"},{"q":"Which of the following areas is covered under 'causal ordering of messages'?","correct":3,"options":["Architectures of distributed systems","communication networks","Lamport's logical clocks","causal ordering of messages"],"explanation":"'causal ordering of messages' is one of the five focus areas of this unit.","type":"mcq"},{"q":"Which of the following areas is covered under 'termination detection. Distributed mutual exclusion: introduction'?","correct":4,"options":["Architectures of distributed systems","communication networks","Lamport's logical clocks","causal ordering of messages"],"explanation":"'termination detection. Distributed mutual exclusion: introduction' is one of the five focus areas of this unit.","type":"mcq"},{"q":"Which of the following is a topic/term belonging to this unit?","correct":0,"options":["Architectures of distributed systems","system architecture types","issues in distributed operating systems","communication networks"],"explanation":"All of the listed options are drawn from this unit; the first is explicitly covered.","type":"mcq"},{"q":"Which of the following is a topic/term belonging to this unit?","correct":0,"options":["communication networks","communication primitives. Theoretical foundations","inherent limitations of a distributed system","Lamport's logical clocks"],"explanation":"All of the listed options are drawn from this unit; the first is explicitly covered.","type":"mcq"},{"q":"Which of the following is a topic/term belonging to this unit?","correct":0,"options":["Lamport's logical clocks","vector clocks","causal ordering of messages","global state"],"explanation":"All of the listed options are drawn from this unit; the first is explicitly covered.","type":"mcq"},{"q":"Which of the following is a topic/term belonging to this unit?","correct":0,"options":["global state","cuts of a distributed computation","termination detection. Distributed mutual exclusion: introduction","classification of mutual exclusion algorithms"],"explanation":"All of the listed options are drawn from this unit; the first is explicitly covered.","type":"mcq"},{"q":"Which of the following is a topic/term belonging to this unit?","correct":0,"options":["classification of mutual exclusion algorithms","a comparative performance analysis.","Architectures of distributed systems","system architecture types"],"explanation":"All of the listed options are drawn from this unit; the first is explicitly covered.","type":"mcq"},{"q":"The main theme of this unit best matches which description?","correct":0,"options":["Architectures of distributed systems, system architecture types, issues in distributed operating sys…","Unrelated subject matter","Only practical exercises","Merely historical background"],"explanation":"The unit text summarises its core theme shown here.","type":"mcq"},{"q":"Complete the statement: This unit focuses on the study of ______.","correct":0,"options":["Architectures of distributed systems","a totally unrelated field","a trading course","a sports topic"],"explanation":"The first focus area of this unit is 'Architectures of distributed systems'.","type":"mcq"}];
+    QuizEngine.setMeta('aos', 1);
+    QuizEngine.returnHref = 'subject-aos-act-u1.html';
+    QuizEngine.init(questions, { shuffleQuestions: true, shuffleOptions: false });
+    // Guard: if fewer than 1 question, show message
+    if (!questions.length) {
+      document.getElementById('quizContainer').innerHTML = '<div class="results-panel"><h3>No questions available yet.</h3><a class="btn btn-primary" href="subject-aos.html">Back to Subject</a></div>';
+    }
+  })();
+</script>
+</body>
+</html>
