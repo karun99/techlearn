@@ -644,4 +644,223 @@ document.addEventListener('DOMContentLoaded', () => {
   AppNav.init();
   MermaidControl.init();
   // ContentProtection.init(true); // uncomment to enable
+  CelebotWidget.init();
 });
+
+/* ============================ Celebot AI Assistant Widget ============================ */
+const CelebotWidget = (() => {
+  const MODELS = [
+    'google/gemini-2.0-flash-001',
+    'google/gemini-2.0-pro-001',
+    'anthropic/claude-3-haiku',
+    'meta-llama/llama-3.1-8b-instruct',
+    'mistralai/mistral-7b-instruct',
+    'microsoft/phi-3-mini-128k-instruct'
+  ];
+
+  let apiKey = localStorage.getItem('celebot_api_key') || '';
+  let config = {
+    model: MODELS[0],
+    persona: 'You are Celebot, a friendly M.Tech CSE teaching assistant for JNTU Kakinada. Explain concepts simply, use examples, and ground answers in the syllabus. Be concise and student-friendly.',
+    tokens: 1000,
+    temperature: 0.5
+  };
+  let chatHistory = [];
+  let isOpen = false;
+
+  function init() {
+    try {
+      const saved = localStorage.getItem('celebot_config');
+      if (saved) Object.assign(config, JSON.parse(saved));
+    } catch (e) {}
+
+    const fab = document.getElementById('celebotFab');
+    const widget = document.getElementById('celebotWidget');
+    const minimize = document.getElementById('cwMinimizeBtn');
+    const sendBtn = document.getElementById('cwSendBtn');
+    const input = document.getElementById('cwUserInput');
+    const apiKeyInput = document.getElementById('cwApiKey');
+    const apiSave = document.getElementById('cwApiSave');
+    const configBtn = document.getElementById('cwConfigBtn');
+    const configModal = document.getElementById('cwConfigModal');
+    const cfgClose = document.getElementById('cwCfgClose');
+    const cfgSave = document.getElementById('cwCfgSave');
+
+    if (!fab || !widget) return;
+
+    if (apiKey) {
+      apiKeyInput.value = apiKey;
+      document.getElementById('cwApiStatus').textContent = 'Key saved';
+    }
+
+    fab.addEventListener('click', () => {
+      isOpen = !isOpen;
+      widget.classList.toggle('open', isOpen);
+      fab.classList.toggle('open', isOpen);
+      fab.innerHTML = isOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-robot"></i>';
+      if (isOpen) input.focus();
+    });
+
+    minimize.addEventListener('click', () => {
+      isOpen = false;
+      widget.classList.remove('open');
+      fab.classList.remove('open');
+      fab.innerHTML = '<i class="fas fa-robot"></i>';
+    });
+
+    sendBtn.addEventListener('click', handleSend);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    });
+
+    apiSave.addEventListener('click', () => {
+      apiKey = apiKeyInput.value.trim();
+      localStorage.setItem('celebot_api_key', apiKey);
+      document.getElementById('cwApiStatus').textContent = apiKey ? 'Key saved' : '';
+    });
+
+    configBtn.addEventListener('click', () => {
+      document.getElementById('cwCfgModel').innerHTML = MODELS.map(m =>
+        `<option value="${m}" ${m === config.model ? 'selected' : ''}>${m}</option>`
+      ).join('');
+      document.getElementById('cwCfgPersona').value = config.persona;
+      document.getElementById('cwCfgTokens').value = config.tokens;
+      document.getElementById('cwCfgTemp').value = config.temperature;
+      configModal.classList.add('open');
+    });
+
+    cfgClose.addEventListener('click', () => configModal.classList.remove('open'));
+    configModal.addEventListener('click', (e) => { if (e.target === configModal) configModal.classList.remove('open'); });
+
+    cfgSave.addEventListener('click', () => {
+      config.model = document.getElementById('cwCfgModel').value;
+      config.persona = document.getElementById('cwCfgPersona').value;
+      config.tokens = parseInt(document.getElementById('cwCfgTokens').value, 10) || 1000;
+      config.temperature = parseFloat(document.getElementById('cwCfgTemp').value) || 0.5;
+      localStorage.setItem('celebot_config', JSON.stringify(config));
+      configModal.classList.remove('open');
+      appendBotMsg('Config saved!');
+    });
+
+    document.querySelectorAll('.cw-skill').forEach(btn => {
+      btn.addEventListener('click', () => handleSkill(btn.dataset.skill));
+    });
+  }
+
+  function appendBotMsg(html, isThinking) {
+    const box = document.getElementById('cwChatBox');
+    const div = document.createElement('div');
+    div.className = 'cw-msg cw-bot';
+    if (isThinking) {
+      div.innerHTML = `<div class="cw-think"><div class="cw-think-label"><i class="fas fa-brain"></i> Thinking...</div><div class="cw-think-body">${escapeHtml(html)}</div></div>`;
+    } else {
+      div.innerHTML = `<div class="cw-msg-label"><i class="fas fa-graduation-cap"></i> Celebot</div><div class="cw-msg-body">${html}</div>`;
+    }
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div;
+  }
+
+  function appendUserMsg(text) {
+    const box = document.getElementById('cwChatBox');
+    const div = document.createElement('div');
+    div.className = 'cw-msg cw-user';
+    div.innerHTML = `<div class="cw-msg-label"><i class="fas fa-user"></i> You</div><div class="cw-msg-body">${escapeHtml(text)}</div>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function escapeHtml(t) {
+    return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  }
+
+  function formatReply(text) {
+    let html = escapeHtml(text);
+    html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    return html;
+  }
+
+  function buildSystemPrompt() {
+    const pageContext = document.title + ' | ' + window.location.pathname;
+    return config.persona + '\n\nContext: You are answering on the page: ' + pageContext + '\nKeep answers concise (under 300 words). Use markdown formatting.';
+  }
+
+  async function handleSend() {
+    const input = document.getElementById('cwUserInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    if (!apiKey) {
+      appendBotMsg('Please enter your OpenRouter BYOK key in the bar above.');
+      return;
+    }
+
+    appendUserMsg(msg);
+    input.value = '';
+    const sendBtn = document.getElementById('cwSendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    chatHistory.push({ role: 'user', content: msg });
+    if (chatHistory.length > 30) chatHistory.splice(0, 10);
+
+    try {
+      const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'TechLearn Celebot'
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages: [
+            { role: 'system', content: buildSystemPrompt() },
+            ...chatHistory.slice(-12),
+            { role: 'user', content: msg }
+          ],
+          temperature: config.temperature,
+          max_tokens: config.tokens
+        })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error((err.error && err.error.message) || 'HTTP ' + resp.status);
+      }
+
+      const data = await resp.json();
+      const reply = data.choices?.[0]?.message?.content || 'No response received.';
+      chatHistory.push({ role: 'assistant', content: reply });
+      appendBotMsg(formatReply(reply));
+    } catch (err) {
+      appendBotMsg('Error: ' + err.message);
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+      document.getElementById('cwUserInput').focus();
+    }
+  }
+
+  function handleSkill(skill) {
+    const prompts = {
+      doubt: 'I have a doubt. Please explain step by step:',
+      summarize: 'Please summarize the key topics and concepts for this unit in a concise way.',
+      explain: 'Please explain this topic in simple terms with examples:',
+      quiz: 'Create 5 multiple choice quiz questions on this topic. Include the answer key at the end.'
+    };
+    const input = document.getElementById('cwUserInput');
+    input.value = prompts[skill] || '';
+    input.focus();
+    if (!isOpen) {
+      isOpen = true;
+      document.getElementById('celebotWidget').classList.add('open');
+      document.getElementById('celebotFab').classList.add('open');
+      document.getElementById('celebotFab').innerHTML = '<i class="fas fa-times"></i>';
+    }
+  }
+
+  return { init };
+})();
