@@ -1,0 +1,16 @@
+{
+  "app": {
+    "name": "mtech-cse-app",
+    "version": "1.0.0",
+    "description": "M.Tech study materials - subject notes, previous year questions, and topic-wise content"
+  },
+  "stack": "node",
+  "routes": [],
+  "pages": [],
+  "base_url": "http://localhost:3000",
+  "module": null,
+  "scripts": {},
+  "server": "mcp-server/server.mjs",
+  "runner": "node",
+  "runner_cmd": "node"
+}
