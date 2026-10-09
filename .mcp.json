@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mtech-cse-app": {
+      "command": "node",
+      "args": [
+        "mcp-server/server.mjs"
+      ]
+    }
+  }
+}
